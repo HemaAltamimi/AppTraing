@@ -11,7 +11,7 @@ namespace API.Controllers
     [Route("api/[controller]")]
     [Authorize]
     public class BaseApiController : ControllerBase
-    {
+    { 
         
     }
 }
