@@ -29,7 +29,7 @@ namespace API.Controllers
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto){
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto){
            if(await UserExists(registerDto.UserName))
             return BadRequest("Username Is Found");
            
@@ -41,7 +41,11 @@ namespace API.Controllers
            };
            _context.Users.Add(user);
            await _context.SaveChangesAsync();
-           return user;
+           
+           return new UserDto{
+                Username=user.UserName,
+                Token=_tokenService.CreateToken(user)
+            };
         }
 
         [HttpPost("login")]
@@ -49,13 +53,13 @@ namespace API.Controllers
         public async Task<ActionResult<UserDto>> login(LoginDto loginDto){
             var user = await _context.Users.SingleOrDefaultAsync(x=>x.UserName == loginDto.Username);
 
-            if(user == null) return Unauthorized("Invalid  username");
+            if(user == null) return BadRequest("Invalid  username");
 
             using var hamc= new HMACSHA512(user.PasswordSalt);
             var  computehash= hamc.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
 
             for(int i=0; i<computehash.Length;i++)
-                if(computehash[i] !=user.PasswordHash[i])return Unauthorized("Invalid  Password"); 
+                if(computehash[i] !=user.PasswordHash[i])return BadRequest("Invalid  Password"); 
 
 
             return new UserDto{
