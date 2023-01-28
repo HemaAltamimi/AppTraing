@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 { 
-    [AllowAnonymous]
     public class UsersController : BaseApiController
     {
         private readonly IUserRepository _userRepository;
