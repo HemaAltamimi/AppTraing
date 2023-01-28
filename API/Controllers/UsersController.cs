@@ -1,5 +1,9 @@
 using API.Data;
+using API.Data.Repositories;
+using API.Dtos;
 using API.Entities;
+using API.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,29 +13,39 @@ namespace API.Controllers
     [AllowAnonymous]
     public class UsersController : BaseApiController
     {
-        private readonly DataContext _context;
-        
-        public UsersController(DataContext context)
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        public UsersController(IUserRepository userRepository ,IMapper mapper)
         {
-            _context = context;
+            _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
-            var result = await _context.Users.ToListAsync();
-
-            return result;
+            var users = await _userRepository.GetUsersAsync();
+            var usersDto = _mapper.Map<IEnumerable<MemberDto>>(users);
+            return Ok(usersDto);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
+        [HttpGet("GetUserById/{id}")]
+        public async Task<ActionResult<MemberDto>> GetUserById(int id)
         {
-            var result = await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return await _userRepository.GetMemberAsync(id);
+        }
+
+
+        [HttpGet("GetUserByUsername/{username}")]
+        public async Task<ActionResult<MemberDto>> GetUserByUsername(string username)
+        {
+            var result = await _userRepository.GetUsernameByIdAsync(username);
             if (result == null)
                 return NotFound();
 
-            return result;
+            var userDto = _mapper.Map<MemberDto>(result);
+            return userDto;
         }
+        
     }
 }

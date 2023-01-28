@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using API.Data;
 using API.Dtos;
 using API.Entities;
-using API.IServices;
+using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
